@@ -1,28 +1,28 @@
 from flask import Flask, request
 from telegram import Bot, Update
 from telegram.ext import Dispatcher, CommandHandler
+import os
 
-TOKEN = "7598919656:AAEpAwoqrzjizDmJS75vJsoOLv3rFf_2HZ0"
+TOKEN = os.environ.get('BOT_TOKEN')  # Render এ Environment Variable হিসেবে সেট করুন
 bot = Bot(token=TOKEN)
+
 app = Flask(__name__)
 
-# Start command handler
-def start(update: Update, context):
-    update.message.reply_text("👋 হ্যালো! আমি প্রস্তুত আছি!")
+def start(update, context):
+    update.message.reply_text("হ্যালো! আমি চালু আছি ✅")
 
-# Dispatcher setup
-dispatcher = Dispatcher(bot, None, workers=0, use_context=True)
+dispatcher = Dispatcher(bot=bot, update_queue=None, use_context=True)
 dispatcher.add_handler(CommandHandler("start", start))
 
-@app.route('/')
-def index():
-    return "✅ Bot is running on Render!"
-
-@app.route(f"/{TOKEN}", methods=['POST'])
+@app.route(f"/{TOKEN}", methods=["POST"])
 def webhook():
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
-    return 'ok'
+    return "OK"
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Bot is running!"
 
 if __name__ == "__main__":
     app.run(port=10000)
