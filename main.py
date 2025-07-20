@@ -2,28 +2,27 @@ from flask import Flask, request
 from telegram import Bot, Update
 from telegram.ext import Dispatcher, CommandHandler
 
-TOKEN = '7893622203:AAGEu1OQ1TjuRegqFprAtKTQLSeuJb0hY0Q'
-OWNER_ID = 7728185213
-
-app = Flask(__name__)
+TOKEN = "7598919656:AAEpAwoqrzjizDmJS75vJsoOLv3rFf_2HZ0"
 bot = Bot(token=TOKEN)
+app = Flask(__name__)
 
-dispatcher = Dispatcher(bot=bot, update_queue=None, use_context=True)
+# Start command handler
+def start(update: Update, context):
+    update.message.reply_text("👋 হ্যালো! আমি প্রস্তুত আছি!")
 
-def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="🤖 বট কাজ করছে!")
-
+# Dispatcher setup
+dispatcher = Dispatcher(bot, None, workers=0, use_context=True)
 dispatcher.add_handler(CommandHandler("start", start))
-
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return 'OK'
 
 @app.route('/')
 def index():
-    return '✅ Bot is running.'
+    return "✅ Bot is running on Render!"
 
-if __name__ == '__main__':
-    app.run()
+@app.route(f"/{TOKEN}", methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), bot)
+    dispatcher.process_update(update)
+    return 'ok'
+
+if __name__ == "__main__":
+    app.run(port=10000)
